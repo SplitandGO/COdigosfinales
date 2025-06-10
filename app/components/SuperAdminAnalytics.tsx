@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -37,15 +37,31 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { getSystemAnalytics, createRestaurant, createAdminUser } from '@/lib/supabase-admin'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
+// Definición de la estructura de los datos de analítica
 interface AnalyticsData {
-  restaurant: string
-  count: number
-  sum: number
-  avg: number
+  month: string
+  activeUsers: number
+  revenue: number
 }
 
-export default function SuperAdminAnalytics() {
+// Datos de ejemplo para la gráfica
+const data: AnalyticsData[] = [
+  { month: 'Ene', activeUsers: 100, revenue: 1000 },
+  { month: 'Feb', activeUsers: 150, revenue: 1500 },
+  { month: 'Mar', activeUsers: 200, revenue: 2000 },
+  { month: 'Abr', activeUsers: 250, revenue: 2500 },
+  { month: 'May', activeUsers: 300, revenue: 3000 },
+  { month: 'Jun', activeUsers: 350, revenue: 3500 },
+]
+
+/**
+ * Componente de analítica para el superadministrador.
+ * Muestra una gráfica de usuarios activos e ingresos por mes.
+ */
+export const SuperAdminAnalytics: React.FC = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([])
   const [loading, setLoading] = useState(true)
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -59,6 +75,7 @@ export default function SuperAdminAnalytics() {
     email: '',
     restaurant_id: '',
   })
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAnalytics()
@@ -70,6 +87,7 @@ export default function SuperAdminAnalytics() {
       setAnalytics(data)
     } catch (error) {
       console.error('Error fetching analytics:', error)
+      setError('Error al cargar los datos de analítica.')
     } finally {
       setLoading(false)
     }
@@ -86,6 +104,7 @@ export default function SuperAdminAnalytics() {
       fetchAnalytics()
     } catch (error) {
       console.error('Error creating restaurant:', error)
+      setError('Error al crear el restaurante.')
     }
   }
 
@@ -93,112 +112,141 @@ export default function SuperAdminAnalytics() {
   const borderColor = useColorModeValue('gray.200', 'gray.700')
 
   return (
-    <Container maxW="container.xl" py={8}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={6}>
-        <Heading>Panel de Super Administrador</Heading>
-        <Button colorScheme="blue" onClick={onOpen}>
-          Añadir Restaurante
-        </Button>
-      </Box>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Análisis de Usuarios y Ingresos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Mensaje de error accesible */}
+          {error && (
+            <div role="alert" aria-live="assertive" className="text-red-600 mb-4">
+              {error}
+            </div>
+          )}
+          <div className="h-[400px]" aria-label="Gráfica de usuarios activos e ingresos por mes">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip contentStyle={{ fontSize: '1rem' }} />
+                <Bar yAxisId="left" dataKey="activeUsers" fill="#8884d8" name="Usuarios Activos" aria-label="Usuarios Activos" />
+                <Bar yAxisId="right" dataKey="revenue" fill="#82ca9d" name="Ingresos" aria-label="Ingresos" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
 
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
-        <Stat
-          px={4}
-          py={5}
-          bg={bgColor}
-          shadow="base"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
-          <StatLabel>Total Restaurantes</StatLabel>
-          <StatNumber>{analytics.length}</StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            23.36%
-          </StatHelpText>
-        </Stat>
+      <Container maxW="container.xl" py={8}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={6}>
+          <Heading>Panel de Super Administrador</Heading>
+          <Button colorScheme="blue" onClick={onOpen}>
+            Añadir Restaurante
+          </Button>
+        </Box>
 
-        <Stat
-          px={4}
-          py={5}
-          bg={bgColor}
-          shadow="base"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
-          <StatLabel>Total Pedidos</StatLabel>
-          <StatNumber>
-            {analytics.reduce((acc, curr) => acc + curr.count, 0)}
-          </StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            9.05%
-          </StatHelpText>
-        </Stat>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
+          <Stat
+            px={4}
+            py={5}
+            bg={bgColor}
+            shadow="base"
+            rounded="lg"
+            borderWidth="1px"
+            borderColor={borderColor}
+          >
+            <StatLabel>Total Restaurantes</StatLabel>
+            <StatNumber>{analytics.length}</StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              23.36%
+            </StatHelpText>
+          </Stat>
 
-        <Stat
-          px={4}
-          py={5}
-          bg={bgColor}
-          shadow="base"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
-          <StatLabel>Ingresos Totales</StatLabel>
-          <StatNumber>
-            ${analytics.reduce((acc, curr) => acc + curr.sum, 0).toFixed(2)}
-          </StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            14.05%
-          </StatHelpText>
-        </Stat>
+          <Stat
+            px={4}
+            py={5}
+            bg={bgColor}
+            shadow="base"
+            rounded="lg"
+            borderWidth="1px"
+            borderColor={borderColor}
+          >
+            <StatLabel>Total Pedidos</StatLabel>
+            <StatNumber>
+              {analytics.reduce((acc, curr) => acc + curr.activeUsers, 0)}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              9.05%
+            </StatHelpText>
+          </Stat>
 
-        <Stat
-          px={4}
-          py={5}
-          bg={bgColor}
-          shadow="base"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
-          <StatLabel>Promedio por Pedido</StatLabel>
-          <StatNumber>
-            ${(analytics.reduce((acc, curr) => acc + curr.avg, 0) / analytics.length).toFixed(2)}
-          </StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            7.05%
-          </StatHelpText>
-        </Stat>
-      </SimpleGrid>
+          <Stat
+            px={4}
+            py={5}
+            bg={bgColor}
+            shadow="base"
+            rounded="lg"
+            borderWidth="1px"
+            borderColor={borderColor}
+          >
+            <StatLabel>Ingresos Totales</StatLabel>
+            <StatNumber>
+              ${analytics.reduce((acc, curr) => acc + curr.revenue, 0).toFixed(2)}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              14.05%
+            </StatHelpText>
+          </Stat>
 
-      <Box overflowX="auto">
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Restaurante</Th>
-              <Th isNumeric>Pedidos</Th>
-              <Th isNumeric>Ingresos</Th>
-              <Th isNumeric>Promedio</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {analytics.map((data, index) => (
-              <Tr key={index}>
-                <Td>{data.restaurant}</Td>
-                <Td isNumeric>{data.count}</Td>
-                <Td isNumeric>${data.sum.toFixed(2)}</Td>
-                <Td isNumeric>${data.avg.toFixed(2)}</Td>
+          <Stat
+            px={4}
+            py={5}
+            bg={bgColor}
+            shadow="base"
+            rounded="lg"
+            borderWidth="1px"
+            borderColor={borderColor}
+          >
+            <StatLabel>Promedio por Pedido</StatLabel>
+            <StatNumber>
+              ${(analytics.reduce((acc, curr) => acc + curr.revenue, 0) / analytics.length).toFixed(2)}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              7.05%
+            </StatHelpText>
+          </Stat>
+        </SimpleGrid>
+
+        <Box overflowX="auto">
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Restaurante</Th>
+                <Th isNumeric>Pedidos</Th>
+                <Th isNumeric>Ingresos</Th>
+                <Th isNumeric>Promedio</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
+            </Thead>
+            <Tbody>
+              {analytics.map((data, index) => (
+                <Tr key={index}>
+                  <Td>{data.month}</Td>
+                  <Td isNumeric>{data.activeUsers}</Td>
+                  <Td isNumeric>${data.revenue.toFixed(2)}</Td>
+                  <Td isNumeric>${(data.revenue / data.activeUsers).toFixed(2)}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      </Container>
 
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
@@ -264,6 +312,8 @@ export default function SuperAdminAnalytics() {
           </ModalBody>
         </ModalContent>
       </Modal>
-    </Container>
+    </div>
   )
-} 
+}
+
+export default SuperAdminAnalytics 

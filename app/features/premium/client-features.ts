@@ -214,4 +214,33 @@ export const PremiumHistory = {
       }
     }
   }
-} 
+}
+
+export interface ClientFeatures {
+  id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+  price: number;
+}
+
+export const clientFeatures: ClientFeatures[] = [
+  {
+    id: 'basic',
+    name: 'Plan Básico',
+    description: 'Acceso a funcionalidades básicas de la plataforma',
+    isActive: true,
+    price: 0
+  },
+  {
+    id: 'premium',
+    name: 'Plan Premium',
+    description: 'Acceso completo a todas las funcionalidades',
+    isActive: true,
+    price: 29.99
+  }
+];
+
+export const getClientFeature = (featureId: string): ClientFeatures | undefined => {
+  return clientFeatures.find(feature => feature.id === featureId);
+}; 
