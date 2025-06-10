@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { useState, useEffect } from 'react'
 import {
   Box,
@@ -37,6 +38,8 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { getSystemAnalytics, createRestaurant, createAdminUser } from '@/lib/supabase-admin'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface AnalyticsData {
   restaurant: string
@@ -45,7 +48,16 @@ interface AnalyticsData {
   avg: number
 }
 
-export default function SuperAdminAnalytics() {
+const data: AnalyticsData[] = [
+  { restaurant: 'Ene', count: 100, sum: 1000, avg: 10 },
+  { restaurant: 'Feb', count: 150, sum: 1500, avg: 10 },
+  { restaurant: 'Mar', count: 200, sum: 2000, avg: 10 },
+  { restaurant: 'Abr', count: 250, sum: 2500, avg: 10 },
+  { restaurant: 'May', count: 300, sum: 3000, avg: 10 },
+  { restaurant: 'Jun', count: 350, sum: 3500, avg: 10 },
+]
+
+export const SuperAdminAnalytics: React.FC = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([])
   const [loading, setLoading] = useState(true)
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -93,112 +105,135 @@ export default function SuperAdminAnalytics() {
   const borderColor = useColorModeValue('gray.200', 'gray.700')
 
   return (
-    <Container maxW="container.xl" py={8}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={6}>
-        <Heading>Panel de Super Administrador</Heading>
-        <Button colorScheme="blue" onClick={onOpen}>
-          Añadir Restaurante
-        </Button>
-      </Box>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Análisis de Usuarios y Ingresos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="restaurant" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip />
+                <Bar yAxisId="left" dataKey="count" fill="#8884d8" name="Pedidos" />
+                <Bar yAxisId="right" dataKey="sum" fill="#82ca9d" name="Ingresos" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
 
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
-        <Stat
-          px={4}
-          py={5}
-          bg={bgColor}
-          shadow="base"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
-          <StatLabel>Total Restaurantes</StatLabel>
-          <StatNumber>{analytics.length}</StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            23.36%
-          </StatHelpText>
-        </Stat>
+      <Container maxW="container.xl" py={8}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={6}>
+          <Heading>Panel de Super Administrador</Heading>
+          <Button colorScheme="blue" onClick={onOpen}>
+            Añadir Restaurante
+          </Button>
+        </Box>
 
-        <Stat
-          px={4}
-          py={5}
-          bg={bgColor}
-          shadow="base"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
-          <StatLabel>Total Pedidos</StatLabel>
-          <StatNumber>
-            {analytics.reduce((acc, curr) => acc + curr.count, 0)}
-          </StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            9.05%
-          </StatHelpText>
-        </Stat>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
+          <Stat
+            px={4}
+            py={5}
+            bg={bgColor}
+            shadow="base"
+            rounded="lg"
+            borderWidth="1px"
+            borderColor={borderColor}
+          >
+            <StatLabel>Total Restaurantes</StatLabel>
+            <StatNumber>{analytics.length}</StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              23.36%
+            </StatHelpText>
+          </Stat>
 
-        <Stat
-          px={4}
-          py={5}
-          bg={bgColor}
-          shadow="base"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
-          <StatLabel>Ingresos Totales</StatLabel>
-          <StatNumber>
-            ${analytics.reduce((acc, curr) => acc + curr.sum, 0).toFixed(2)}
-          </StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            14.05%
-          </StatHelpText>
-        </Stat>
+          <Stat
+            px={4}
+            py={5}
+            bg={bgColor}
+            shadow="base"
+            rounded="lg"
+            borderWidth="1px"
+            borderColor={borderColor}
+          >
+            <StatLabel>Total Pedidos</StatLabel>
+            <StatNumber>
+              {analytics.reduce((acc, curr) => acc + curr.count, 0)}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              9.05%
+            </StatHelpText>
+          </Stat>
 
-        <Stat
-          px={4}
-          py={5}
-          bg={bgColor}
-          shadow="base"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
-          <StatLabel>Promedio por Pedido</StatLabel>
-          <StatNumber>
-            ${(analytics.reduce((acc, curr) => acc + curr.avg, 0) / analytics.length).toFixed(2)}
-          </StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            7.05%
-          </StatHelpText>
-        </Stat>
-      </SimpleGrid>
+          <Stat
+            px={4}
+            py={5}
+            bg={bgColor}
+            shadow="base"
+            rounded="lg"
+            borderWidth="1px"
+            borderColor={borderColor}
+          >
+            <StatLabel>Ingresos Totales</StatLabel>
+            <StatNumber>
+              ${analytics.reduce((acc, curr) => acc + curr.sum, 0).toFixed(2)}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              14.05%
+            </StatHelpText>
+          </Stat>
 
-      <Box overflowX="auto">
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Restaurante</Th>
-              <Th isNumeric>Pedidos</Th>
-              <Th isNumeric>Ingresos</Th>
-              <Th isNumeric>Promedio</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {analytics.map((data, index) => (
-              <Tr key={index}>
-                <Td>{data.restaurant}</Td>
-                <Td isNumeric>{data.count}</Td>
-                <Td isNumeric>${data.sum.toFixed(2)}</Td>
-                <Td isNumeric>${data.avg.toFixed(2)}</Td>
+          <Stat
+            px={4}
+            py={5}
+            bg={bgColor}
+            shadow="base"
+            rounded="lg"
+            borderWidth="1px"
+            borderColor={borderColor}
+          >
+            <StatLabel>Promedio por Pedido</StatLabel>
+            <StatNumber>
+              ${(analytics.reduce((acc, curr) => acc + curr.avg, 0) / analytics.length).toFixed(2)}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              7.05%
+            </StatHelpText>
+          </Stat>
+        </SimpleGrid>
+
+        <Box overflowX="auto">
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Restaurante</Th>
+                <Th isNumeric>Pedidos</Th>
+                <Th isNumeric>Ingresos</Th>
+                <Th isNumeric>Promedio</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
+            </Thead>
+            <Tbody>
+              {analytics.map((data, index) => (
+                <Tr key={index}>
+                  <Td>{data.restaurant}</Td>
+                  <Td isNumeric>{data.count}</Td>
+                  <Td isNumeric>${data.sum.toFixed(2)}</Td>
+                  <Td isNumeric>${data.avg.toFixed(2)}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      </Container>
 
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
@@ -264,6 +299,6 @@ export default function SuperAdminAnalytics() {
           </ModalBody>
         </ModalContent>
       </Modal>
-    </Container>
+    </div>
   )
 } 
