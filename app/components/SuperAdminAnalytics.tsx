@@ -1,7 +1,6 @@
 'use client'
 
-import React from 'react'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -41,22 +40,27 @@ import { getSystemAnalytics, createRestaurant, createAdminUser } from '@/lib/sup
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
+// Definición de la estructura de los datos de analítica
 interface AnalyticsData {
-  restaurant: string
-  count: number
-  sum: number
-  avg: number
+  month: string
+  activeUsers: number
+  revenue: number
 }
 
+// Datos de ejemplo para la gráfica
 const data: AnalyticsData[] = [
-  { restaurant: 'Ene', count: 100, sum: 1000, avg: 10 },
-  { restaurant: 'Feb', count: 150, sum: 1500, avg: 10 },
-  { restaurant: 'Mar', count: 200, sum: 2000, avg: 10 },
-  { restaurant: 'Abr', count: 250, sum: 2500, avg: 10 },
-  { restaurant: 'May', count: 300, sum: 3000, avg: 10 },
-  { restaurant: 'Jun', count: 350, sum: 3500, avg: 10 },
+  { month: 'Ene', activeUsers: 100, revenue: 1000 },
+  { month: 'Feb', activeUsers: 150, revenue: 1500 },
+  { month: 'Mar', activeUsers: 200, revenue: 2000 },
+  { month: 'Abr', activeUsers: 250, revenue: 2500 },
+  { month: 'May', activeUsers: 300, revenue: 3000 },
+  { month: 'Jun', activeUsers: 350, revenue: 3500 },
 ]
 
+/**
+ * Componente de analítica para el superadministrador.
+ * Muestra una gráfica de usuarios activos e ingresos por mes.
+ */
 export const SuperAdminAnalytics: React.FC = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([])
   const [loading, setLoading] = useState(true)
@@ -71,6 +75,7 @@ export const SuperAdminAnalytics: React.FC = () => {
     email: '',
     restaurant_id: '',
   })
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAnalytics()
@@ -82,6 +87,7 @@ export const SuperAdminAnalytics: React.FC = () => {
       setAnalytics(data)
     } catch (error) {
       console.error('Error fetching analytics:', error)
+      setError('Error al cargar los datos de analítica.')
     } finally {
       setLoading(false)
     }
@@ -98,6 +104,7 @@ export const SuperAdminAnalytics: React.FC = () => {
       fetchAnalytics()
     } catch (error) {
       console.error('Error creating restaurant:', error)
+      setError('Error al crear el restaurante.')
     }
   }
 
@@ -111,16 +118,22 @@ export const SuperAdminAnalytics: React.FC = () => {
           <CardTitle>Análisis de Usuarios y Ingresos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
+          {/* Mensaje de error accesible */}
+          {error && (
+            <div role="alert" aria-live="assertive" className="text-red-600 mb-4">
+              {error}
+            </div>
+          )}
+          <div className="h-[400px]" aria-label="Gráfica de usuarios activos e ingresos por mes">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="restaurant" />
+                <XAxis dataKey="month" />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
-                <Bar yAxisId="left" dataKey="count" fill="#8884d8" name="Pedidos" />
-                <Bar yAxisId="right" dataKey="sum" fill="#82ca9d" name="Ingresos" />
+                <Tooltip contentStyle={{ fontSize: '1rem' }} />
+                <Bar yAxisId="left" dataKey="activeUsers" fill="#8884d8" name="Usuarios Activos" aria-label="Usuarios Activos" />
+                <Bar yAxisId="right" dataKey="revenue" fill="#82ca9d" name="Ingresos" aria-label="Ingresos" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -164,7 +177,7 @@ export const SuperAdminAnalytics: React.FC = () => {
           >
             <StatLabel>Total Pedidos</StatLabel>
             <StatNumber>
-              {analytics.reduce((acc, curr) => acc + curr.count, 0)}
+              {analytics.reduce((acc, curr) => acc + curr.activeUsers, 0)}
             </StatNumber>
             <StatHelpText>
               <StatArrow type="increase" />
@@ -183,7 +196,7 @@ export const SuperAdminAnalytics: React.FC = () => {
           >
             <StatLabel>Ingresos Totales</StatLabel>
             <StatNumber>
-              ${analytics.reduce((acc, curr) => acc + curr.sum, 0).toFixed(2)}
+              ${analytics.reduce((acc, curr) => acc + curr.revenue, 0).toFixed(2)}
             </StatNumber>
             <StatHelpText>
               <StatArrow type="increase" />
@@ -202,7 +215,7 @@ export const SuperAdminAnalytics: React.FC = () => {
           >
             <StatLabel>Promedio por Pedido</StatLabel>
             <StatNumber>
-              ${(analytics.reduce((acc, curr) => acc + curr.avg, 0) / analytics.length).toFixed(2)}
+              ${(analytics.reduce((acc, curr) => acc + curr.revenue, 0) / analytics.length).toFixed(2)}
             </StatNumber>
             <StatHelpText>
               <StatArrow type="increase" />
@@ -224,10 +237,10 @@ export const SuperAdminAnalytics: React.FC = () => {
             <Tbody>
               {analytics.map((data, index) => (
                 <Tr key={index}>
-                  <Td>{data.restaurant}</Td>
-                  <Td isNumeric>{data.count}</Td>
-                  <Td isNumeric>${data.sum.toFixed(2)}</Td>
-                  <Td isNumeric>${data.avg.toFixed(2)}</Td>
+                  <Td>{data.month}</Td>
+                  <Td isNumeric>{data.activeUsers}</Td>
+                  <Td isNumeric>${data.revenue.toFixed(2)}</Td>
+                  <Td isNumeric>${(data.revenue / data.activeUsers).toFixed(2)}</Td>
                 </Tr>
               ))}
             </Tbody>
@@ -301,4 +314,6 @@ export const SuperAdminAnalytics: React.FC = () => {
       </Modal>
     </div>
   )
-} 
+}
+
+export default SuperAdminAnalytics 
