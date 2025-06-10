@@ -401,4 +401,49 @@ export type PremiumSecurity = {
 export type PremiumCustomization = {
   restaurant: RestaurantCustomization
   customer: CustomerCustomization
+}
+
+export type PlanType = 'free' | 'premium' | 'enterprise';
+
+export interface PremiumFeature {
+  id: string;
+  name: string;
+  description: string;
+  availableIn: PlanType[];
+  icon: string;
+}
+
+export interface UserPlan {
+  type: PlanType;
+  features: PremiumFeature[];
+  price: number;
+  currency: string;
+  billingCycle: 'monthly' | 'yearly';
+}
+
+export interface FidelizacionFeature extends PremiumFeature {
+  pointsMultiplier: number;
+  exclusiveRewards: boolean;
+  prioritySupport: boolean;
+}
+
+export interface NotificacionFeature extends PremiumFeature {
+  pushEnabled: boolean;
+  emailEnabled: boolean;
+  smsEnabled: boolean;
+  customPreferences: boolean;
+}
+
+export interface PagoFeature extends PremiumFeature {
+  multipleMethods: boolean;
+  splitPayment: boolean;
+  recurringPayments: boolean;
+  priorityProcessing: boolean;
+}
+
+export interface ReservaFeature extends PremiumFeature {
+  priorityBooking: boolean;
+  customRequests: boolean;
+  reminderNotifications: boolean;
+  cancellationPolicy: string;
 } 

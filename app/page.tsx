@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Container, Heading, SimpleGrid, Button, Text, VStack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Container, Heading, SimpleGrid, Button, Text, VStack, useColorModeValue, Image } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 
 export default function Home() {
@@ -8,26 +8,30 @@ export default function Home() {
   const bgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
 
-  const roles = [
+  const features = [
     {
-      title: 'Cliente',
-      description: 'Accede a la carta, realiza pedidos y paga tu cuenta individualmente',
-      path: '/cliente'
+      title: 'Carta Digital',
+      description: 'Explora el menú completo con fotos, descripciones y precios actualizados',
+      icon: '📱',
+      path: '/carta'
     },
     {
-      title: 'Mesero',
-      description: 'Gestiona mesas, registra pedidos y comunícate con cocina',
-      path: '/mesero'
+      title: 'Pedidos',
+      description: 'Realiza pedidos directamente desde tu mesa',
+      icon: '🍽️',
+      path: '/pedidos'
     },
     {
-      title: 'Cocina',
-      description: 'Visualiza y gestiona pedidos, marca preparados y comunícate con meseros',
-      path: '/cocina'
+      title: 'Pagos',
+      description: 'Divide la cuenta y paga tu parte de forma individual',
+      icon: '💳',
+      path: '/pagos'
     },
     {
-      title: 'Administrador',
-      description: 'Gestiona el restaurante, usuarios, carta y estadísticas',
-      path: '/admin'
+      title: 'Reservas',
+      description: 'Reserva tu mesa con anticipación',
+      icon: '📅',
+      path: '/reservas'
     }
   ]
 
@@ -39,14 +43,14 @@ export default function Home() {
             Bienvenido a Split&Go
           </Heading>
           <Text fontSize="xl" color="gray.600">
-            Tu solución integral para la gestión de restaurantes
+            Tu experiencia gastronómica, simplificada
           </Text>
         </Box>
 
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8}>
-          {roles.map((role) => (
+          {features.map((feature) => (
             <Box
-              key={role.title}
+              key={feature.title}
               p={6}
               bg={bgColor}
               borderRadius="lg"
@@ -56,21 +60,40 @@ export default function Home() {
               transition="all 0.3s"
             >
               <VStack spacing={4} align="stretch">
-                <Heading as="h3" size="lg">
-                  {role.title}
+                <Text fontSize="4xl" textAlign="center">
+                  {feature.icon}
+                </Text>
+                <Heading as="h3" size="lg" textAlign="center">
+                  {feature.title}
                 </Heading>
-                <Text color="gray.600">{role.description}</Text>
+                <Text color="gray.600" textAlign="center">{feature.description}</Text>
                 <Button
                   colorScheme="blue"
-                  onClick={() => router.push(role.path)}
+                  onClick={() => router.push(feature.path)}
                   mt={4}
                 >
-                  Acceder
+                  Explorar
                 </Button>
               </VStack>
             </Box>
           ))}
         </SimpleGrid>
+
+        <Box textAlign="center" py={10}>
+          <Heading as="h2" size="xl" mb={4}>
+            ¿Eres un restaurante?
+          </Heading>
+          <Text fontSize="lg" color="gray.600" mb={6}>
+            Únete a Split&Go y mejora la experiencia de tus clientes
+          </Text>
+          <Button
+            colorScheme="green"
+            size="lg"
+            onClick={() => window.location.href = 'https://splitandgo.com/locales'}
+          >
+            Regístrate como Restaurante
+          </Button>
+        </Box>
       </VStack>
     </Container>
   )

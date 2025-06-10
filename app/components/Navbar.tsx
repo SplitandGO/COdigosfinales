@@ -16,27 +16,30 @@ import {
   useColorModeValue,
   useBreakpointValue,
   useDisclosure,
-  useColorMode,
+  Avatar,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider
 } from '@chakra-ui/react'
 import {
   HamburgerIcon,
   CloseIcon,
   ChevronDownIcon,
-  ChevronRightIcon,
-  MoonIcon,
-  SunIcon,
+  ChevronRightIcon
 } from '@chakra-ui/icons'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useSupabase } from '@/lib/supabase'
 
 export default function Navbar() {
   const { isOpen, onToggle } = useDisclosure()
-  const { colorMode, toggleColorMode } = useColorMode()
   const router = useRouter()
+  const { supabase, user } = useSupabase()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/')
+    router.push('/login')
   }
 
   return (
@@ -90,25 +93,61 @@ export default function Navbar() {
           direction={'row'}
           spacing={6}
         >
-          <IconButton
-            aria-label="Toggle color mode"
-            icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-            onClick={toggleColorMode}
-          />
-          <Button
-            display={{ base: 'none', md: 'inline-flex' }}
-            fontSize={'sm'}
-            fontWeight={600}
-            color={'white'}
-            bg={'blue.400'}
-            href={'#'}
-            _hover={{
-              bg: 'blue.300',
-            }}
-            onClick={handleLogout}
-          >
-            Cerrar Sesión
-          </Button>
+          {user ? (
+            <Menu>
+              <MenuButton
+                as={Button}
+                rounded={'full'}
+                variant={'link'}
+                cursor={'pointer'}
+                minW={0}
+              >
+                <Avatar
+                  size={'sm'}
+                  src={user.user_metadata?.avatar_url}
+                />
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={() => router.push('/perfil')}>
+                  Mi Perfil
+                </MenuItem>
+                <MenuItem onClick={() => router.push('/pedidos')}>
+                  Mis Pedidos
+                </MenuItem>
+                <MenuItem onClick={() => router.push('/reservas')}>
+                  Mis Reservas
+                </MenuItem>
+                <MenuDivider />
+                <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
+              </MenuList>
+            </Menu>
+          ) : (
+            <>
+              <Button
+                as={'a'}
+                fontSize={'sm'}
+                fontWeight={400}
+                variant={'link'}
+                onClick={() => router.push('/login')}
+              >
+                Iniciar Sesión
+              </Button>
+              <Button
+                display={{ base: 'none', md: 'inline-flex' }}
+                fontSize={'sm'}
+                fontWeight={600}
+                color={'white'}
+                bg={'blue.400'}
+                href={'#'}
+                _hover={{
+                  bg: 'blue.300'
+                }}
+                onClick={() => router.push('/register')}
+              >
+                Registrarse
+              </Button>
+            </>
+          )}
         </Stack>
       </Flex>
 
@@ -120,6 +159,7 @@ export default function Navbar() {
 }
 
 const DesktopNav = () => {
+  const router = useRouter()
   const linkColor = useColorModeValue('gray.600', 'gray.200')
   const linkHoverColor = useColorModeValue('gray.800', 'white')
   const popoverContentBgColor = useColorModeValue('white', 'gray.800')
@@ -138,8 +178,9 @@ const DesktopNav = () => {
                 color={linkColor}
                 _hover={{
                   textDecoration: 'none',
-                  color: linkHoverColor,
+                  color: linkHoverColor
                 }}
+                onClick={() => navItem.href && router.push(navItem.href)}
               >
                 {navItem.label}
               </Link>
@@ -169,14 +210,15 @@ const DesktopNav = () => {
 }
 
 const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
+  const router = useRouter()
   return (
     <Link
-      href={href}
       role={'group'}
       display={'block'}
       p={2}
       rounded={'md'}
       _hover={{ bg: useColorModeValue('blue.50', 'gray.900') }}
+      onClick={() => href && router.push(href)}
     >
       <Stack direction={'row'} align={'center'}>
         <Box>
@@ -221,6 +263,7 @@ const MobileNav = () => {
 
 const MobileNavItem = ({ label, children, href }: NavItem) => {
   const { isOpen, onToggle } = useDisclosure()
+  const router = useRouter()
 
   return (
     <Stack spacing={4} onClick={children && onToggle}>
@@ -231,8 +274,9 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
         justify={'space-between'}
         align={'center'}
         _hover={{
-          textDecoration: 'none',
+          textDecoration: 'none'
         }}
+        onClick={() => href && router.push(href)}
       >
         <Text
           fontWeight={600}
@@ -281,19 +325,19 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
   {
-    label: 'Inicio',
-    href: '/',
-  },
-  {
-    label: 'Mesas',
-    href: '/mesas',
+    label: 'Carta',
+    href: '/carta'
   },
   {
     label: 'Pedidos',
-    href: '/pedidos',
+    href: '/pedidos'
   },
   {
-    label: 'Carta',
-    href: '/carta',
+    label: 'Reservas',
+    href: '/reservas'
   },
+  {
+    label: 'Pagos',
+    href: '/pagos'
+  }
 ] 

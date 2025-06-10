@@ -1,19 +1,81 @@
-import { Redis } from 'ioredis'
+import Redis from 'ioredis'
 
-// Configuración de Redis para caché y optimización
-const redisConfig = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
-  db: parseInt(process.env.REDIS_DB || '0'),
-  retryStrategy: (times: number) => {
-    const delay = Math.min(times * 50, 2000)
-    return delay
+const redisUrl = process.env.REDIS_URL
+
+if (!redisUrl) {
+  throw new Error('Falta la variable de entorno REDIS_URL')
+}
+
+export const redis = new Redis(redisUrl)
+
+// Funciones de utilidad para el caché
+export const getCachedData = async <T>(key: string): Promise<T | null> => {
+  const data = await redis.get(key)
+  return data ? JSON.parse(data) : null
+}
+
+export const setCachedData = async <T>(
+  key: string,
+  data: T,
+  expirationInSeconds: number = 3600
+): Promise<void> => {
+  await redis.setex(key, expirationInSeconds, JSON.stringify(data))
+}
+
+export const deleteCachedData = async (key: string): Promise<void> => {
+  await redis.del(key)
+}
+
+// Funciones específicas para el caché de la aplicación
+export const cacheUserData = async (userId: string, userData: any): Promise<void> => {
+  await setCachedData(`user:${userId}`, userData)
+}
+
+export const getCachedUserData = async (userId: string): Promise<any | null> => {
+  return getCachedData(`user:${userId}`)
+}
+
+export const cacheRestaurantData = async (
+  restaurantId: string,
+  restaurantData: any
+): Promise<void> => {
+  await setCachedData(`restaurant:${restaurantId}`, restaurantData)
+}
+
+export const getCachedRestaurantData = async (
+  restaurantId: string
+): Promise<any | null> => {
+  return getCachedData(`restaurant:${restaurantId}`)
+}
+
+export const cacheMenuData = async (
+  restaurantId: string,
+  menuData: any
+): Promise<void> => {
+  await setCachedData(`menu:${restaurantId}`, menuData)
+}
+
+export const getCachedMenuData = async (
+  restaurantId: string
+): Promise<any | null> => {
+  return getCachedData(`menu:${restaurantId}`)
+}
+
+// Función para limpiar el caché de un restaurante
+export const clearRestaurantCache = async (restaurantId: string): Promise<void> => {
+  const keys = await redis.keys(`*:${restaurantId}`)
+  if (keys.length > 0) {
+    await redis.del(...keys)
   }
 }
 
-// Cliente Redis para caché
-export const redis = new Redis(redisConfig)
+// Función para limpiar el caché de un usuario
+export const clearUserCache = async (userId: string): Promise<void> => {
+  const keys = await redis.keys(`user:${userId}*`)
+  if (keys.length > 0) {
+    await redis.del(...keys)
+  }
+}
 
 // Funciones de utilidad para caché
 export const cacheUtils = {

@@ -1,42 +1,34 @@
-# Split&Go - Aplicación de Gestión para Restaurantes
+# Split&Go Clientes
 
-Split&Go es una aplicación moderna diseñada para mejorar la gestión y operación de restaurantes y bares, ofreciendo herramientas completas para meseros, cocina y administradores.
+Split&Go Clientes es una aplicación moderna diseñada para mejorar la experiencia de los clientes en restaurantes y bares, permitiendo realizar pedidos, pagos y reservas de forma sencilla y eficiente.
 
-## Características por Rol
+## Características Principales
 
-### Para Meseros
-* Gestión completa de mesas
-* Registro de pedidos
-* Asignación de productos a clientes
-* Modificación de cuentas activas
-* Comunicación con cocina
-* Notificaciones en tiempo real
+### Para Clientes
+* Carta digital interactiva
+* Realización de pedidos desde la mesa
+* División de cuenta y pagos individuales
+* Sistema de reservas
+* Programa de fidelización
+* Notificaciones personalizadas
 
-### Para Cocina
-* Visualización de pedidos por orden
-* Gestión de pedidos por mesa
-* Marcado de pedidos preparados
-* Chat interno con meseros
-
-### Para Administradores
-* Registro y configuración del restaurante
-* Gestión de usuarios y roles
-* Edición de carta en tiempo real
-* Control de inventario
-* Gestión de reservas
-* Estadísticas y reportes
-* Configuración de propinas
-* Modo autoservicio
+### Características Premium
+* Pagos múltiples métodos
+* Reservas prioritarias
+* Solicitudes especiales
+* Beneficios exclusivos
+* Soporte prioritario
 
 ## Tecnologías Utilizadas
 
 * Frontend: Next.js, React
+* UI: Chakra UI
 * Backend: Supabase
 * Pagos: Stripe
+* Caché: Redis
 * Despliegue: Vercel
 * Base de datos: PostgreSQL
 * Autenticación: Supabase Auth
-* Notificaciones: Firebase Cloud Messaging
 
 ## Requisitos del Sistema
 
@@ -44,18 +36,19 @@ Split&Go es una aplicación moderna diseñada para mejorar la gestión y operaci
 * npm 9.x o superior
 * Cuenta de Supabase
 * Cuenta de Stripe
+* Cuenta de Redis
 * Cuenta de Vercel
 
 ## Instalación
 
 1. Clonar el repositorio:
 ```bash
-git clone https://github.com/SplitandGO/Split_Go_Locales.git
+git clone https://github.com/SplitandGO/Split_Go_Clientes.git
 ```
 
 2. Instalar dependencias:
 ```bash
-cd Split_Go_Locales
+cd Split_Go_Clientes
 npm install
 ```
 
@@ -72,18 +65,43 @@ npm run dev
 ## Estructura del Proyecto
 
 ```
-Split_Go_Locales/
+Split_Go_Clientes/
 ├── app/                    # Directorio principal de la aplicación
 │   ├── (auth)/            # Rutas de autenticación
-│   ├── (dashboard)/       # Panel de control
-│   ├── api/               # API routes
-│   ├── mesas/             # Gestión de mesas
+│   ├── carta/             # Carta digital
 │   ├── pedidos/           # Gestión de pedidos
-│   ├── cocina/            # Interfaz de cocina
+│   ├── pagos/             # Sistema de pagos
+│   ├── reservas/          # Sistema de reservas
+│   ├── features/          # Características premium
 │   └── components/        # Componentes reutilizables
 ├── lib/                   # Utilidades y configuraciones
+│   ├── supabase.ts       # Configuración de Supabase
+│   ├── stripe.ts         # Configuración de Stripe
+│   └── redis.ts          # Configuración de Redis
 └── public/               # Archivos estáticos
 ```
+
+## Características Premium
+
+### Plan Free
+* Acceso básico a la carta
+* Pedidos simples
+* Pagos con tarjeta
+* Reservas básicas
+
+### Plan Premium
+* Múltiples métodos de pago
+* Reservas prioritarias
+* Solicitudes especiales
+* Notificaciones avanzadas
+* Beneficios exclusivos
+
+### Plan Enterprise
+* Todas las características premium
+* Soporte prioritario
+* Personalización avanzada
+* API access
+* Análisis detallado
 
 ## Contribución
 
@@ -101,4 +119,4 @@ Este proyecto está bajo la Licencia MIT - ver el archivo LICENSE.md para más d
 
 Split&Go Team - @SplitandGO
 
-Link del Proyecto: https://github.com/SplitandGO/Split_Go_Locales
+Link del Proyecto: https://github.com/SplitandGO/Split_Go_Clientes
